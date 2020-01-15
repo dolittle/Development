@@ -26,7 +26,19 @@ fi
 
 # get the absolute path to your local repos root
 GIT_ROOT=$(git rev-parse --show-toplevel)
-MOUNT_CMD="$GIT_ROOT:/Documentation/Source/repositories/$ORG_PATH"
+
+if [ "$REPO_NAME" == "Documentation" ]; then
+    # if we're writing documentation about documentation there is a symlink in the docker from
+    # /Documentation/Source/content/contributing/documentation to ../../../Documentation/
+    # so we basically just override the whole docker images dolittle/Documentation repo
+    # with our local copy of it
+    DOCKER_PATH="/Documentation"
+else
+    DOCKER_PATH="/Documentation/Source/repositories/$ORG_PATH"
+fi
+
+MOUNT_CMD="$GIT_ROOT:$DOCKER_PATH"
+echo "Mounting folder $GIT_ROOT to $DOCKER_PATH"
 # mount your local project root inside the Source/repositories/ path
 docker run -it -p 1313:1313 -v $MOUNT_CMD dolittle/documentation
 
