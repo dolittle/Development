@@ -1,0 +1,42 @@
+#!/bin/bash
+if ! ls *.sln &>/dev/null ; then
+    echo "There is no .NET Solution file in this directory, so you are probably in the wrong directory. Quitting...";
+    exit 1
+fi
+
+DOLITTLE_MINOR_PATH_VERSION=".1000.0"
+
+if [ ! -z "$1" ] ; then
+    DOLITTLE_LOCAL_VERSION="$1$DOLITTLE_MINOR_PATH_VERSION"
+else
+    DOLITTLE_GIT_LAST_VERSION=$(git tag --sort=-version:refname | grep -v "v" | head -n 1)
+    echo "[Info] Last Git version tag found: $DOLITTLE_GIT_LAST_VERSION"
+    DOLITTLE_LOCAL_VERSION="${DOLITTLE_GIT_LAST_VERSION%%\.*}$DOLITTLE_MINOR_PATH_VERSION"
+fi
+echo "[Info] Building version: $DOLITTLE_LOCAL_VERSION"
+
+
+DOLITTLE_BUILD_PACKAGE_DIR=$(mktemp -d)
+DOLITTLE_LOCAL_NUGET_DIR="$HOME/.nuget/packages"
+
+echo "[Info] Temporary packages directory: $DOLITTLE_BUILD_PACKAGE_DIR"
+echo "[Info] Local NuGet packages directory: $DOLITTLE_LOCAL_NUGET_DIR"
+echo ""
+
+dotnet pack --output "$DOLITTLE_BUILD_PACKAGE_DIR" "-p:PackageVersion=$DOLITTLE_LOCAL_VERSION" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
+echo ""
+
+(cd "$DOLITTLE_BUILD_PACKAGE_DIR" && find . -name "*.nupkg") | while read DOLITTLE_PACKAGE_FILE ; do
+    DOLITTLE_PACKAGE_FILE="${DOLITTLE_PACKAGE_FILE:2}"
+    DOLITTLE_PACKAGE_NAME="${DOLITTLE_PACKAGE_FILE%.$DOLITTLE_LOCAL_VERSION.nupkg}"
+    find "$DOLITTLE_LOCAL_NUGET_DIR" -iname "$DOLITTLE_PACKAGE_NAME" | while read DOLITTLE_LOCAL_PACKAGE_DIRECTORY ; do
+        if [ -d "$DOLITTLE_LOCAL_PACKAGE_DIRECTORY/$DOLITTLE_LOCAL_VERSION" ]; then
+            echo "Deleting $DOLITTLE_PACKAGE_NAME $DOLITTLE_LOCAL_VERSION"
+            rm -r "$DOLITTLE_LOCAL_PACKAGE_DIRECTORY/$DOLITTLE_LOCAL_VERSION"
+        fi
+    done
+done
+
+nuget init "$DOLITTLE_BUILD_PACKAGE_DIR" "$DOLITTLE_LOCAL_NUGET_DIR" -Expand -NonInteractive
+
+rm -r "$DOLITTLE_BUILD_PACKAGE_DIR"
