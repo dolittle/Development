@@ -17,11 +17,7 @@ if [[ $ORG_NAME =~ $DASH_PATTERN ]] ; then
     # combine ORG_NAME with REPO_NAME to get the wanted structure for hugo.
     # check the structure from repo dolittle/Documentation, inside /Source/repositories
     ORG_PATH=$(echo "$ORG_NAME" | sed -E "s/$DASH_PATTERN/\1/g" | tr '[:upper:]' '[:lower:]')
-    echo "HEREI BE BOIS"
-    echo "$ORG_NAME"
-    echo "$ORG_PATH"
     ORG_PATH=$ORG_PATH/$REPO_NAME
-    echo "$ORG_PATH"
 elif [[ $ORG_NAME == "dolittle" ]] ; then
     # ORG_PATH is the same as REPO_NAME but lowercase
     ORG_PATH=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
