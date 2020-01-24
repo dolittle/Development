@@ -5,18 +5,23 @@
 REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
 # we assume the push and fetch is the same so just get the fetch
 GIT_REMOTE=$(git remote -v | head -n 1)
-# get the github organization name with the first capture group, can contain ./-@
-ORG_PATTERN='.*:([\.a-zA-Z0-9_\-\@]+)\/.*'
-ORG_NAME=$(echo "$GIT_REMOTE" | sed -E "s/$ORG_PATTERN/\1/")
+# get the github organization name with the first capture group
+ORG_PATTERN='.*:(\S+)\/.*.git.*'
+ORG_NAME=$(echo "$GIT_REMOTE" | sed -E "s/$ORG_PATTERN/\1/g")
 
 # pattern for getting just the part after the - from orgs like dolittle-tools, dolittle-fundamentals etc
-DASH_PATTERN='-(\S+)'
+DASH_PATTERN='.*-(\S+)'
+
 
 if [[ $ORG_NAME =~ $DASH_PATTERN ]] ; then
     # combine ORG_NAME with REPO_NAME to get the wanted structure for hugo.
     # check the structure from repo dolittle/Documentation, inside /Source/repositories
     ORG_PATH=$(echo "$ORG_NAME" | sed -E "s/$DASH_PATTERN/\1/g" | tr '[:upper:]' '[:lower:]')
+    echo "HEREI BE BOIS"
+    echo "$ORG_NAME"
+    echo "$ORG_PATH"
     ORG_PATH=$ORG_PATH/$REPO_NAME
+    echo "$ORG_PATH"
 elif [[ $ORG_NAME == "dolittle" ]] ; then
     # ORG_PATH is the same as REPO_NAME but lowercase
     ORG_PATH=$(echo "$REPO_NAME" | tr '[:upper:]' '[:lower:]')
