@@ -2,9 +2,11 @@
 Common development scripts and tools used at Dolittle
 
 ## How to add scripts to your PATH
-Source the `.bashrc` from the repo root into your _.bashrc/.zshrc_ etc
+Source the `.bashrc` from the repo root into your own _.bashrc_ or _.zshrc_ etc
+
+This will source all the scripts.
 ```console
-source "/your/absolute/repo/path/Development/.bashrc"
+source "/your/absolute/path/to/repo/Development/.bashrc"
 ```
 
 ## DotNET
