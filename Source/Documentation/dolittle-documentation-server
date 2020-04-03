@@ -6,12 +6,13 @@ REPO_NAME=$(basename "$(git rev-parse --show-toplevel)")
 # we assume the push and fetch is the same so just get the fetch
 GIT_REMOTE=$(git remote -v | head -n 1)
 # get the github organization name with the first capture group
-ORG_PATTERN='.*:(\S+)\/.*.git.*'
-ORG_NAME=$(echo "$GIT_REMOTE" | sed -E "s/$ORG_PATTERN/\1/g")
+ORG_PATTERN=".*((github\.com\/)|(github\.com:))([^[:space:]]+)\/.*\.git.*"
+ORG_NAME=$(echo "$GIT_REMOTE" | sed -E "s/$ORG_PATTERN/\4/g")
 
 # pattern for getting just the part after the - from orgs like dolittle-tools, dolittle-fundamentals etc
 DASH_PATTERN='.*-(\S+)'
 
+echo "ORG NAME $ORG_NAME"
 
 if [[ $ORG_NAME =~ $DASH_PATTERN ]] ; then
     # combine ORG_NAME with REPO_NAME to get the wanted structure for hugo.
