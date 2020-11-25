@@ -3,4 +3,5 @@
 DIR=$(dirname "$0")/Source
 export PATH="$PATH:$DIR/Documentation"
 export PATH="$PATH:$DIR/DotNET"
+export PATH="$PATH:$DIR/kubernetes"
 

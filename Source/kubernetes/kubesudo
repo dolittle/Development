@@ -1,0 +1,31 @@
+#! /bin/bash
+
+COMMANDS="$@"
+COMMAND_STRING=$(printf "%s" "${COMMANDS[*]}")
+if [ -z "${COMMAND_STRING}" ]; then
+    echo "Pls gibe a real command";
+    exit 1;
+fi
+
+APPLY_ADMIN="kubectl apply -f ~/Dolittle/Operations/Source/V2/RBAC-PaaS/RBAC-clusterwide-access-Joel.yml"
+DELETE_ADMIN="kubectl delete -f ~/Dolittle/Operations/Source/V2/RBAC-PaaS/RBAC-clusterwide-access-Joel.yml"
+
+echo "About to execute command with admin priviledges:"
+echo "'$COMMAND_STRING'"
+
+while true; do
+    read -p "You sure?" yn
+    case $yn in
+        [Yy]* )
+            echo "Granting admin";
+            eval "$APPLY_ADMIN";
+            echo "Executing command";
+            eval "$COMMAND_STRING";
+            echo "Revoking admin";
+            eval "$DELETE_ADMIN";
+            break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
